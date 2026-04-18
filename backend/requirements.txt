@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+pgvector
+pydantic
+pydantic-settings
+python-dotenv
+groq
+httpx
+structlog
+python-multipart
+# Add Hindsight SDK if available via pip, otherwise will use httpx for its API
