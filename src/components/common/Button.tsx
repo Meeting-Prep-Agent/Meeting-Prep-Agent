@@ -17,9 +17,9 @@ export const Button: React.FC<ButtonProps> = ({
   ...props 
 }) => {
   const variants = {
-    primary: 'bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 text-white shadow-sm',
-    secondary: 'bg-[hsl(var(--secondary))] hover:bg-[hsl(var(--muted))] text-foreground border border-border',
-    ghost: 'bg-transparent hover:bg-[hsl(var(--secondary))] text-muted-foreground hover:text-foreground',
+    primary: 'bg-primary hover:opacity-90 text-primary-foreground shadow-sm',
+    secondary: 'bg-secondary hover:bg-muted text-foreground border border-border',
+    ghost: 'bg-transparent hover:bg-secondary text-muted-foreground hover:text-foreground',
     destructive: 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200'
   };
 
@@ -33,7 +33,7 @@ export const Button: React.FC<ButtonProps> = ({
         variants[variant],
         className
       )}
-      {...props}
+      {...(props as any)}
     >
       <span className={cn("flex items-center space-x-2", loading && "opacity-0 invisible")}>
         {children}

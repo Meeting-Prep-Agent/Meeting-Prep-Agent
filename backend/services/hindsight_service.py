@@ -31,7 +31,7 @@ class HindsightService:
         
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(url, headers=self.headers, json=payload, timeout=30.0)
+                response = await client.post(url, headers=self.headers, json=payload, timeout=5.0)
                 response.raise_for_status()
                 return response.json()
             except Exception as e:
@@ -52,7 +52,7 @@ class HindsightService:
         
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(url, headers=self.headers, json=payload, timeout=30.0)
+                response = await client.post(url, headers=self.headers, json=payload, timeout=5.0)
                 response.raise_for_status()
                 return response.json().get("memories", [])
             except Exception as e:
@@ -72,7 +72,7 @@ class HindsightService:
         
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(url, headers=self.headers, json=payload, timeout=60.0)
+                response = await client.post(url, headers=self.headers, json=payload, timeout=5.0)
                 response.raise_for_status()
                 return response.json()
             except Exception as e:

@@ -16,12 +16,12 @@ import { useContacts } from '../hooks/useContacts';
 import { useMeetings } from '../hooks/useMeetings';
 import { prepBriefService } from '../services/prepBriefService';
 import { Contact, PrepBrief } from '../types';
-import { Sparkles, History, FileText, LayoutDashboard } from 'lucide-react';
+import { Sparkles, History, FileText, LayoutDashboard, User } from 'lucide-react';
 
 export default function DashboardPage() {
   const { contacts, loading: loadingContacts } = useContacts();
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [activeTab, setActiveTab] = useState<'strategy' | 'history' | 'ingest'>('strategy');
+  const [activeTab, setActiveTab] = useState<'strategy' | 'profile' | 'history' | 'ingest'>('strategy');
   const [brief, setBrief] = useState<PrepBrief | null>(null);
   const [chatMessages, setChatMessages] = useState<{role: 'user' | 'assistant', content: string}[]>([
     { role: 'assistant', content: "I'm connected to your Hindsight memory bank. Select a contact to begin strategic synthesis." }
@@ -98,6 +98,7 @@ export default function DashboardPage() {
           </div>
 
           <nav className="flex items-center space-x-1 bg-secondary/50 p-1 rounded-xl border border-border">
+            <TabButton active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon={<User size={14}/>}>Profile</TabButton>
             <TabButton active={activeTab === 'strategy'} onClick={() => setActiveTab('strategy')} icon={<Sparkles size={14}/>}>Brief</TabButton>
             <TabButton active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<History size={14}/>}>Memory</TabButton>
             <TabButton active={activeTab === 'ingest'} onClick={() => setActiveTab('ingest')} icon={<FileText size={14}/>}>Ingest</TabButton>
@@ -110,6 +111,42 @@ export default function DashboardPage() {
         </header>
 
         <main className="flex-1 overflow-y-auto p-10 space-y-10 pb-32">
+          {activeTab === 'profile' && selectedContact && (
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div className="bg-white p-8 rounded-2xl border border-border shadow-sm flex flex-col space-y-4">
+                <div className="flex items-center space-x-4 mb-4">
+                  <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center border border-border">
+                    <User size={32} className="text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground">{selectedContact.name}</h2>
+                    <p className="text-muted-foreground">{selectedContact.title} at {selectedContact.company}</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground mb-1 font-semibold">Email</p>
+                    <p>{selectedContact.email || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground mb-1 font-semibold">Phone</p>
+                    <p>{selectedContact.phone || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground mb-1 font-semibold">Interaction Count</p>
+                    <p>{selectedContact.interaction_count} meetings</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground mb-1 font-semibold">Last Updated</p>
+                    <p>{new Date(selectedContact.updated_at).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              </div>
+              <BehavioralIntel insights={selectedContact.behavioral_profile} />
+            </div>
+          )}
+
           {activeTab === 'strategy' && (
             <>
               {brief ? (
