@@ -18,13 +18,7 @@ A sophisticated, production-ready AI assistant that transforms meeting preparati
 
 ## ⚙️ Quick Start
 
-### 1. Configure Environment
-Create a `.env` file in the root with:
-```env
-DATABASE_URL=postgresql://user:pass@db:5432/meeting_prep
-GROQ_API_KEY=your_key_here
-HINDSIGHT_API_KEY=your_key_here
-```
+
 
 ### 2. Run with Docker
 ```bash
