@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meeting Prep Agent - AI-Powered Meeting Intelligence</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 class="product-name">Meeting Prep Agent</h1>
+          <span class="product-subtitle">AI-powered meeting intelligence</span>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="status-badge active">
+          <span class="status-dot"></span>
+          HINDSIGHT ACTIVE
+        </span>
+      </div>
+    </header>
+
+    <!-- App Body (Sidebar + Main Content) -->
+    <div class="app-body">
+      <!-- Left Sidebar -->
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <a href="#" class="nav-item active" data-tab="dashboard">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="14" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/>
+            </svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="#" class="nav-item" data-tab="contacts">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 4-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>Contacts</span>
+          </a>
+          <a href="#" class="nav-item" data-tab="meetings">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>Meetings</span>
+          </a>
+          <a href="#" class="nav-item" data-tab="memory">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+            <span>Memory</span>
+          </a>
+          <a href="#" class="nav-item" data-tab="settings">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <span>Settings</span>
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="main-content">
+        <!-- Error Banner (hidden by default) -->
+        <div id="errorBanner" class="error-banner hidden"></div>
+
+        <div class="dashboard-grid">
+          
+          <!-- Column 1: Input & AI Prep Section -->
+          <div class="dashboard-column primary-column">
+            
+            <!-- Contact Selector Section -->
+            <section class="card contact-section">
+              <h2 class="section-title">Prepare for a meeting</h2>
+              <div class="form-group">
+                <label for="contactSelect" class="form-label">Select Contact</label>
+                <select id="contactSelect" class="form-select">
+                  <option value="" selected disabled>Loading contacts...</option>
+                </select>
+              </div>
+            </section>
+
+            <!-- Meeting Transcript Section -->
+            <section class="card transcript-section">
+              <h3 class="card-title">Meeting Transcript</h3>
+              
+              <!-- Upload Status Alert -->
+              <div id="uploadStatus" class="alert-message hidden"></div>
+
+              <div class="form-group">
+                <textarea 
+                  id="transcriptInput" 
+                  class="form-textarea" 
+                  rows="8" 
+                  placeholder="Paste the meeting transcript here..."
+                ></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="button" id="processBtn" class="btn btn-primary">
+                  Process Meeting
+                </button>
+              </div>
+            </section>
+
+            <!-- Processed Meeting Result Card -->
+            <section id="processedMeetingCard" class="card result-card hidden">
+              <div class="card-header-flex">
+                <h3 class="card-title">Processed Meeting Result</h3>
+                <span class="badge badge-success">Processed</span>
+              </div>
+              <div class="result-details">
+                <div class="result-item">
+                  <span class="result-label">Meeting ID:</span>
+                  <span id="resultMeetingId" class="result-value code-font"></span>
+                </div>
+                <div class="result-item">
+                  <span class="result-label">Tone:</span>
+                  <span id="resultTone" class="result-value"></span>
+                </div>
+                <div class="result-item">
+                  <span class="result-label">Sentiment Score:</span>
+                  <span id="resultSentiment" class="result-value"></span>
+                </div>
+                <div class="result-group">
+                  <span class="result-label">Summary:</span>
+                  <p id="resultSummary" class="result-text"></p>
+                </div>
+                <div class="result-group">
+                  <span class="result-label">Key Topics:</span>
+                  <div id="resultTopics" class="topics-tags"></div>
+                </div>
+              </div>
+            </section>
+
+            <!-- AI Preparation Section -->
+            <section class="card ai-prep-section">
+              <div class="card-header-flex">
+                <h3 class="card-title">AI Meeting Preparation</h3>
+                <button type="button" id="prepareBtn" class="btn btn-primary">
+                  Prepare Me
+                </button>
+              </div>
+
+              <!-- Prep Brief Alert Status -->
+              <div id="prepStatus" class="alert-message hidden"></div>
+
+              <!-- Initial Empty State -->
+              <div id="aiPrepEmptyState" class="empty-state">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                <p>Your personalized preparation brief will appear here.</p>
+              </div>
+
+              <!-- AI Preparation Result Card -->
+              <div id="aiPrepResult" class="prep-result hidden">
+                <div class="memory-badge-bar">
+                  <span class="status-badge active memory-indicator">
+                    <span class="status-dot"></span>
+                    Hindsight Memory Used
+                  </span>
+                  <span class="indicator-subtitle">Personalized using stored meeting context</span>
+                </div>
+
+                <!-- Top Summary "Quick Brief" Area -->
+                <div id="quickBriefArea" class="quick-brief-grid hidden"></div>
+                
+                <div id="prepBriefContent" class="markdown-body"></div>
+              </div>
+            </section>
+
+          </div>
+
+          <!-- Column 2: Memory & History Section -->
+          <div class="dashboard-column secondary-column">
+
+            <!-- Hindsight Memory Section -->
+            <section class="card memory-section">
+              <div class="card-header-flex">
+                <h3 class="card-title">Hindsight Memory</h3>
+                <span class="badge badge-subtle">Persistent</span>
+              </div>
+              
+              <p class="memory-explanation">
+                Long-term context is used by the backend to personalize meeting preparation.
+              </p>
+
+              <div class="memory-placeholders">
+                <!-- Behavioral Insights -->
+                <div class="placeholder-group">
+                  <h4 class="placeholder-heading">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    Behavioral Profile
+                  </h4>
+                  <div id="behavioralProfileContainer" class="placeholder-box">
+                    <span class="placeholder-text">Select a contact to view behavioral profile.</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Meeting History Section -->
+            <section class="card history-section">
+              <div class="card-header-flex">
+                <h3 class="card-title">Meeting History</h3>
+                <span id="historyCountBadge" class="badge badge-subtle hidden">0 meetings</span>
+              </div>
+
+              <div id="meetingHistoryContainer">
+                <div class="empty-state">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <p>Select a contact to load meeting history.</p>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
