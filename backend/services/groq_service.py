@@ -1,7 +1,7 @@
 import os
-from groq import AsyncGroq
 import json
 from typing import List, Dict, Any, Optional
+from groq import AsyncGroq
 from backend.config import settings
 from backend.utils.logger import logger
 
@@ -10,70 +10,103 @@ class GroqService:
         self.api_key = api_key or settings.GROQ_API_KEY
         if not self.api_key:
             logger.error("GROQ_API_KEY not found in settings")
-            raise ValueError("GROQ_API_KEY is not set")
+            raise ValueError("GROQ_API_KEY is not set. Please configure GROQ_API_KEY in your environment.")
         self.client = AsyncGroq(api_key=self.api_key)
+        
+        # Primary model configurations
         self.models = {
-            "FAST": "llama3-8b-8192",
+            "FAST": "openai/gpt-oss-20b",
+            "STRATEGIC": "openai/gpt-oss-120b"
+        }
+        # Supported Groq model fallback list if specified model name is not hosted on API tier
+        self.supported_fallbacks = {
+            "FAST": "llama-3.1-8b-instant",
             "STRATEGIC": "llama-3.3-70b-versatile"
         }
 
     async def _run_completion(self, messages: List[Dict[str, str]], model_key: str = "FAST", json_mode: bool = True):
-        model = self.models.get(model_key, self.models["FAST"])
-        response = await self.client.chat.completions.create(
-            messages=messages,
-            model=model,
-            response_format={"type": "json_object"} if json_mode else None,
-            temperature=0.1
-        )
-        content = response.choices[0].message.content
-        return json.loads(content) if json_mode else content
+        target_model = self.models.get(model_key, self.models["FAST"])
+        fallback_model = self.supported_fallbacks.get(model_key, "llama-3.3-70b-versatile")
 
-    async def extract_meeting_data(self, transcript: str):
+        try:
+            response = await self.client.chat.completions.create(
+                messages=messages,
+                model=target_model,
+                response_format={"type": "json_object"} if json_mode else None,
+                temperature=0.1,
+                timeout=10.0
+            )
+        except Exception as primary_err:
+            logger.warning(f"Groq call with target model {target_model} failed ({primary_err}). Trying supported Groq model {fallback_model}...")
+            try:
+                response = await self.client.chat.completions.create(
+                    messages=messages,
+                    model=fallback_model,
+                    response_format={"type": "json_object"} if json_mode else None,
+                    temperature=0.1,
+                    timeout=15.0
+                )
+            except Exception as fallback_err:
+                logger.error(f"Groq API call completely failed on both {target_model} and {fallback_model}: {fallback_err}")
+                # NO MOCK FALLBACK! Raise the real exception so caller gets honest error
+                raise fallback_err
+
+        content = response.choices[0].message.content
+        if json_mode:
+            try:
+                return json.loads(content)
+            except Exception as parse_err:
+                logger.error(f"Failed to parse LLM JSON output: {content}")
+                raise ValueError(f"LLM output was not valid JSON: {parse_err}")
+        return content
+
+    async def extract_meeting_data(self, transcript: str) -> Dict[str, Any]:
+        """
+        Performs REAL LLM extraction on raw meeting transcript.
+        NO mock fallbacks. If Groq fails, exception is raised.
+        """
         prompt = """
-        You are an expert business analyst. Extract structured data from this meeting transcript.
+        You are an expert business intelligence analyst. Analyze the following raw meeting transcript.
         Return ONLY a JSON object with:
-        - summary: Concise recap
-        - sentiment_score: -1.0 to 1.0
-        - key_topics: List of strings
-        - tone_analysis: Descriptive string (e.g. "Collaborative but slightly stressed")
-        - commitments: List of { owner: "User"|"ContactName", description, due_date: ISO 8601 or null, priority: "High"|"Medium"|"Low" }
-        - behavioral_signals: { 
-            communication_style: "Analytical"|"Assertive"|"Amiable"|"Expressive",
-            decision_pattern: "Descriptive string",
-            hot_button_topics: ["topic1", ...],
-            preferred_communication: "Email"|"Call"|"In-person"
+        - summary: A concise, accurate factual recap of the meeting (2-4 sentences).
+        - sentiment_score: Float between -1.0 (negative) and 1.0 (positive).
+        - key_topics: List of concise string topics discussed.
+        - tone_analysis: Descriptive tone (e.g. "Collaborative", "Cautious & Detailed", "Focused").
+        - commitments: List of objects with { "owner": "User"|"ContactName", "description": "...", "due_date": "ISO 8601 YYYY-MM-DD or null", "priority": "High"|"Medium"|"Low" }.
+        - behavioral_signals: Object with { 
+            "communication_style": "Analytical"|"Assertive"|"Amiable"|"Expressive",
+            "decision_pattern": "Factual description of decision pattern",
+            "hot_button_topics": ["topic1", ...],
+            "preferred_communication": "Email"|"Call"|"In-person"
           }
         """
         messages = [
             {"role": "system", "content": prompt},
-            {"role": "user", "content": f"Transcript: {transcript}"}
+            {"role": "user", "content": f"Transcript:\n{transcript}"}
         ]
-        try:
-            return await self._run_completion(messages, model_key="FAST")
-        except Exception as e:
-            logger.error(f"Groq extraction failed: {e}. Using mock data.")
-            return {
-                "summary": "Mocked: The meeting covered important strategic points.",
-                "sentiment_score": 0.5,
-                "key_topics": ["Strategy", "Mock Data"],
-                "tone_analysis": "Professional",
-                "commitments": [],
-                "behavioral_signals": {
-                    "communication_style": "Analytical",
-                    "decision_pattern": "Structured",
-                    "hot_button_topics": [],
-                    "preferred_communication": "Email"
-                }
-            }
-    async def generate_prep_brief(self, contact_profile: Dict, open_commitments: List, meeting_history: List, context: str = ""):
+
+        logger.info(f"Executing real Groq LLM meeting data extraction...")
+        result = await self._run_completion(messages, model_key="FAST", json_mode=True)
+        return result
+
+    async def generate_prep_brief(
+        self, 
+        contact_profile: Dict[str, Any], 
+        open_commitments: List[Dict[str, Any]], 
+        meeting_history: List[Dict[str, Any]], 
+        context: str = ""
+    ) -> Dict[str, Any]:
+        """
+        Synthesizes tactical preparation brief. NO mock fallbacks.
+        """
         prompt = """
-        You are a professional meeting strategist. Generate a tactical preparation brief.
+        You are a senior executive meeting strategist. Generate a high-leverage preparation brief.
         Return ONLY a JSON object with:
-        - last_meeting_summary: recap
-        - recommended_strategy: 2-3 sentence approach
-        - talking_points: ["Point 1", ...]
-        - red_flags: ["Flag 1", ...] (e.g. overdue items)
-        - success_factors: ["Factor 1", ...]
+        - last_meeting_summary: A clear recap of past interactions.
+        - recommended_strategy: A 2-3 sentence strategic recommendation grounded strictly in the provided data.
+        - talking_points: List of tactical talking points (3-5 items).
+        - red_flags: List of warning signals/risks (0-3 items).
+        - success_factors: List of key success drivers (2-4 items).
         """
         data_packet = {
             "contact_profile": contact_profile,
@@ -83,16 +116,9 @@ class GroqService:
         }
         messages = [
             {"role": "system", "content": prompt},
-            {"role": "user", "content": f"Context Data: {json.dumps(data_packet)}"}
+            {"role": "user", "content": f"Context Data:\n{json.dumps(data_packet)}"}
         ]
-        try:
-            return await self._run_completion(messages, model_key="STRATEGIC")
-        except Exception as e:
-            logger.error(f"Groq brief generation failed: {e}. Using mock data.")
-            return {
-                "last_meeting_summary": "Mocked summary: The last interaction focused on core objectives and alignment.",
-                "recommended_strategy": "Mocked strategy: Proceed with a clear, data-driven methodology.",
-                "talking_points": ["Review mock KPIs", "Discuss process improvements", "Align on next steps"],
-                "red_flags": ["Mocked: Watch for misaligned timelines"],
-                "success_factors": ["Mocked: Mutual agreement on budget"]
-            }
+
+        logger.info(f"Executing real Groq LLM strategic brief synthesis...")
+        result = await self._run_completion(messages, model_key="STRATEGIC", json_mode=True)
+        return result

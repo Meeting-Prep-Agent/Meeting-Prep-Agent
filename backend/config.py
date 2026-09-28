@@ -1,8 +1,14 @@
 import os
+from typing import Optional
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
-load_dotenv()
+# Search and load .env from workspace root or current directory
+env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+if os.path.exists(env_path):
+    load_dotenv(env_path)
+else:
+    load_dotenv()
 
 class Settings(BaseSettings):
     APP_NAME: str = "Meeting Prep Agent"
@@ -10,11 +16,11 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     
     # DATABASE
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://user:pass@localhost/meeting_prep")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./meeting_prep.db")
     
     # LLM & MEMORY
-    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY")
-    HINDSIGHT_API_KEY: str = os.getenv("HINDSIGHT_API_KEY")
+    GROQ_API_KEY: Optional[str] = os.getenv("GROQ_API_KEY", None)
+    HINDSIGHT_API_KEY: Optional[str] = os.getenv("HINDSIGHT_API_KEY", None)
     HINDSIGHT_ENDPOINT: str = os.getenv("HINDSIGHT_ENDPOINT", "https://api.hindsight.vectorize.io")
     
     # SECURITY

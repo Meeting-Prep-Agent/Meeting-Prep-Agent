@@ -37,7 +37,11 @@ async def upload_meeting(
     hindsight = HindsightService()
     
     logger.info(f"Extracting intelligence for meeting with {contact.name}")
-    extracted = await groq.extract_meeting_data(payload.transcript_raw)
+    try:
+        extracted = await groq.extract_meeting_data(payload.transcript_raw)
+    except Exception as e:
+        logger.error(f"Meeting extraction failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Groq Extraction Error: {str(e)}")
     
     # 3. Create Meeting
     meeting = MeetingModel(
@@ -66,11 +70,12 @@ async def upload_meeting(
     db.refresh(meeting)
 
     # 6. Retain in Hindsight (Background)
+    memory_content = f"Meeting Summary: {meeting.summary}. Key Topics: {', '.join(meeting.key_topics or [])}. Commitments: {extracted.get('commitments')}. Behavioral Signals: {signals}. Transcript: {payload.transcript_raw}"
     background_tasks.add_task(
         hindsight.retain, 
         str(contact.id), 
-        payload.transcript_raw, 
-        {"meeting_id": str(meeting.id), "summary": meeting.summary}
+        memory_content, 
+        {"meeting_id": str(meeting.id), "summary": meeting.summary, "contact_name": contact.name}
     )
 
     logger.info(f"Meeting {meeting.id} successfully processed for {contact.name}")
