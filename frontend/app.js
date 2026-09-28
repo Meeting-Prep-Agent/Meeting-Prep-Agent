@@ -1,55 +1,89 @@
-// Meeting Prep Agent - Vanilla JavaScript Frontend (Step 7B: Final AI Brief Rendering Cleanup)
+// Meeting Prep Agent - Light AI Workspace Frontend (Step 8: Final Product Polish)
 
 const API_BASE_URL = 'http://localhost:8000/api/v1';
 
 let contactsCache = [];
 let currentContactId = null;
+let sessionPrepResults = {};
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Sidebar navigation tab switching
-  const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
-  navItems.forEach(item => {
-    item.addEventListener('click', (e) => {
-      e.preventDefault();
-      navItems.forEach(nav => nav.classList.remove('active'));
-      item.classList.add('active');
-    });
-  });
+  // 1. Navigation View Switching
+  setupViewNavigation();
 
-  // Fetch contacts from backend on page load
+  // 2. Add Person Modal Binding
+  setupAddPersonModal();
+
+  // 3. Initial Contacts Fetch
   fetchContacts();
 
-  // Bind contact dropdown change listener
+  // 4. Contact Select Change Handlers
   const contactSelect = document.getElementById('contactSelect');
-  if (contactSelect) {
-    contactSelect.addEventListener('change', handleContactChange);
-  }
+  const meetingsContactSelect = document.getElementById('meetingsContactSelect');
 
-  // Bind meeting process button
+  if (contactSelect) contactSelect.addEventListener('change', handleContactChange);
+  if (meetingsContactSelect) meetingsContactSelect.addEventListener('change', handleContactChange);
+
+  // 5. Action Buttons Binding
   const processBtn = document.getElementById('processBtn');
-  if (processBtn) {
-    processBtn.addEventListener('click', handleMeetingUpload);
-  }
+  if (processBtn) processBtn.addEventListener('click', handleMeetingUpload);
 
-  // Bind AI Prepare Me button
   const prepareBtn = document.getElementById('prepareBtn');
-  if (prepareBtn) {
-    prepareBtn.addEventListener('click', handlePrepareBrief);
-  }
+  if (prepareBtn) prepareBtn.addEventListener('click', handlePrepareBrief);
 });
 
-async function fetchContacts() {
+// View Navigation Logic
+function setupViewNavigation() {
+  const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+  const views = document.querySelectorAll('.workspace-view');
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetViewId = link.getAttribute('data-view');
+
+      navLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+
+      views.forEach(v => {
+        if (v.id === `view${capitalize(targetViewId)}`) {
+          v.classList.remove('hidden');
+        } else {
+          v.classList.add('hidden');
+        }
+      });
+
+      // Clear alert banners when switching views
+      const prepStatus = document.getElementById('prepStatus');
+      const uploadStatus = document.getElementById('uploadStatus');
+      if (prepStatus) prepStatus.classList.add('hidden');
+      if (uploadStatus) uploadStatus.classList.add('hidden');
+    });
+  });
+}
+
+function capitalize(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Contacts Fetching & Synchronization
+async function fetchContacts(autoSelectId = null) {
   const contactSelect = document.getElementById('contactSelect');
-  const errorBanner = document.getElementById('errorBanner');
+  const meetingsContactSelect = document.getElementById('meetingsContactSelect');
+  const globalBanner = document.getElementById('globalBanner');
+  const prepStatus = document.getElementById('prepStatus');
+  const uploadStatus = document.getElementById('uploadStatus');
 
-  if (!contactSelect) return;
+  // Hide all alerts by default on load
+  if (prepStatus) prepStatus.classList.add('hidden');
+  if (uploadStatus) uploadStatus.classList.add('hidden');
+  if (globalBanner) globalBanner.classList.add('hidden');
 
-  // 1. Loading state
-  contactSelect.innerHTML = '<option value="" disabled selected>Loading contacts...</option>';
-  if (errorBanner) {
-    errorBanner.classList.add('hidden');
-    errorBanner.textContent = '';
-  }
+  const selects = [contactSelect, meetingsContactSelect].filter(Boolean);
+
+  selects.forEach(s => {
+    s.innerHTML = '<option value="" disabled selected>Loading contacts...</option>';
+  });
 
   try {
     const response = await fetch(`${API_BASE_URL}/contacts`);
@@ -61,70 +95,207 @@ async function fetchContacts() {
     const contacts = await response.json();
     contactsCache = Array.isArray(contacts) ? contacts : [];
 
-    // 2. Handle empty contacts response
     if (contactsCache.length === 0) {
-      contactSelect.innerHTML = '<option value="" disabled selected>No contacts found</option>';
+      selects.forEach(s => {
+        s.innerHTML = '<option value="" disabled selected>No contacts found</option>';
+      });
       return;
     }
 
-    // 3. Populate dropdown with backend contacts
-    contactSelect.innerHTML = '<option value="" disabled selected>Select a contact</option>';
-
-    contactsCache.forEach(contact => {
-      const option = document.createElement('option');
-      option.value = contact.id;
-      option.textContent = contact.company ? `${contact.name} (${contact.company})` : contact.name;
-      contactSelect.appendChild(option);
+    // Populate dropdowns
+    selects.forEach(s => {
+      s.innerHTML = '<option value="" disabled selected>Select a contact</option>';
+      contactsCache.forEach(contact => {
+        const option = document.createElement('option');
+        option.value = contact.id;
+        option.textContent = contact.company ? `${contact.name} (${contact.company})` : contact.name;
+        s.appendChild(option.cloneNode(true));
+      });
     });
+
+    // Auto-select contact if requested or if already set
+    const targetId = autoSelectId || currentContactId || contactsCache[0].id;
+    if (targetId) {
+      selects.forEach(s => s.value = targetId);
+      handleContactChange();
+    }
 
   } catch (error) {
     console.error('API Error when fetching contacts:', error);
-    
-    // 4. Handle API failure
-    contactSelect.innerHTML = '<option value="" disabled selected>Unable to load contacts</option>';
-    
-    if (errorBanner) {
-      errorBanner.textContent = `Unable to load contacts: ${error.message || 'Network Error'}`;
-      errorBanner.classList.remove('hidden');
+    selects.forEach(s => {
+      s.innerHTML = '<option value="" disabled selected>Unable to load contacts</option>';
+    });
+
+    if (globalBanner) {
+      globalBanner.className = 'alert-banner alert-error';
+      globalBanner.textContent = `Unable to load contacts: ${error.message || 'Network Error'}`;
+      globalBanner.classList.remove('hidden');
     }
   }
 }
 
 function handleContactChange() {
   const contactSelect = document.getElementById('contactSelect');
-  if (!contactSelect) return;
+  const meetingsContactSelect = document.getElementById('meetingsContactSelect');
 
-  const selectedId = contactSelect.value;
-  if (!selectedId || selectedId === currentContactId) return;
+  const selectedId = (contactSelect && contactSelect.value) || (meetingsContactSelect && meetingsContactSelect.value);
+  if (!selectedId) return;
 
   currentContactId = selectedId;
+
+  // Synchronize both select dropdowns
+  if (contactSelect && contactSelect.value !== selectedId) contactSelect.value = selectedId;
+  if (meetingsContactSelect && meetingsContactSelect.value !== selectedId) meetingsContactSelect.value = selectedId;
+
   const contact = contactsCache.find(c => String(c.id) === String(selectedId));
 
-  // 1. Render real Behavioral Profile if available
+  // 1. Render Behavioral Profile in Memory View
   renderBehavioralProfile(contact);
 
-  // 2. Clear old state / brief results
+  // 2. Reset AI Brief & Result states (Ensure success alert banners are hidden)
   const resultCard = document.getElementById('processedMeetingCard');
   if (resultCard) resultCard.classList.add('hidden');
 
   const emptyState = document.getElementById('aiPrepEmptyState');
   const prepResult = document.getElementById('aiPrepResult');
   const prepStatus = document.getElementById('prepStatus');
+  const uploadStatus = document.getElementById('uploadStatus');
 
-  if (emptyState) emptyState.classList.remove('hidden');
-  if (prepResult) prepResult.classList.add('hidden');
   if (prepStatus) prepStatus.classList.add('hidden');
+  if (uploadStatus) uploadStatus.classList.add('hidden');
 
-  // 3. Fetch real Meeting History for selected contact
+  if (selectedId && sessionPrepResults[selectedId]) {
+    handlePrepareBriefSuccess(sessionPrepResults[selectedId]);
+  } else {
+    if (emptyState) emptyState.classList.remove('hidden');
+    if (prepResult) prepResult.classList.add('hidden');
+  }
+
+  // 3. Fetch Meeting History for selected contact
   fetchMeetingHistory(selectedId);
 }
 
+// Add Person Modal Logic
+function setupAddPersonModal() {
+  const modal = document.getElementById('addPersonModal');
+  const openBtn1 = document.getElementById('addPersonBtn');
+  const openBtn2 = document.getElementById('sidebarAddPersonBtn');
+  const closeBtn = document.getElementById('modalCloseBtn');
+  const cancelBtn = document.getElementById('modalCancelBtn');
+  const form = document.getElementById('addPersonForm');
+  const modalError = document.getElementById('modalError');
+
+  function openModal() {
+    if (form) form.reset();
+    if (modalError) modalError.classList.add('hidden');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeModal() {
+    if (modal) modal.classList.add('hidden');
+  }
+
+  if (openBtn1) openBtn1.addEventListener('click', openModal);
+  if (openBtn2) openBtn2.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('modalName').value.trim();
+      const title = document.getElementById('modalTitle').value.trim();
+      const company = document.getElementById('modalCompany').value.trim() || 'Independent';
+      const email = document.getElementById('modalEmail').value.trim();
+      const phone = document.getElementById('modalPhone').value.trim();
+
+      if (!name) {
+        if (modalError) {
+          modalError.textContent = 'Full Name is required.';
+          modalError.classList.remove('hidden');
+        }
+        return;
+      }
+
+      const submitBtn = document.getElementById('modalSubmitBtn');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Adding...';
+      }
+
+      try {
+        const payload = {
+          name: name,
+          title: title || null,
+          company: company,
+          email: email || null,
+          phone: phone || null
+        };
+
+        const response = await fetch(`${API_BASE_URL}/contacts`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          let errDetail = 'Failed to create contact';
+          try {
+            const errData = await response.json();
+            if (errData && errData.detail) errDetail = typeof errData.detail === 'string' ? errData.detail : JSON.stringify(errData.detail);
+          } catch (e) {
+            errDetail = response.statusText || errDetail;
+          }
+          throw new Error(errDetail);
+        }
+
+        const newContact = await response.json();
+
+        closeModal();
+
+        // Refresh contacts and auto-select newly created contact
+        await fetchContacts(newContact.id);
+
+        const globalBanner = document.getElementById('globalBanner');
+        if (globalBanner) {
+          globalBanner.className = 'alert-banner alert-success';
+          globalBanner.textContent = `Person "${newContact.name}" added successfully!`;
+          globalBanner.classList.remove('hidden');
+          setTimeout(() => globalBanner.classList.add('hidden'), 5000);
+        }
+
+      } catch (err) {
+        console.error('Add person error:', err);
+        if (modalError) {
+          modalError.textContent = `Error: ${err.message || 'Unable to create person'}`;
+          modalError.classList.remove('hidden');
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Add Person';
+        }
+      }
+    });
+  }
+}
+
+// Behavioral Profile Renderer
 function renderBehavioralProfile(contact) {
-  const container = document.getElementById('behavioralProfileContainer');
+  const container = document.getElementById('memoryBehavioralContainer');
   if (!container) return;
 
   if (!contact || !contact.behavioral_profile || Object.keys(contact.behavioral_profile).length === 0) {
-    container.innerHTML = '<span class="placeholder-text">Behavioral profile will appear after sufficient interaction history.</span>';
+    container.innerHTML = '<span class="muted-text">Behavioral profile will appear after sufficient interaction history.</span>';
     return;
   }
 
@@ -134,7 +305,7 @@ function renderBehavioralProfile(contact) {
   if (profile.communication_style) {
     html += `
       <div class="behavioral-item">
-        <span class="behavioral-label">Communication Style:</span>
+        <span class="behavioral-label">Communication Style</span>
         <span class="behavioral-val">${escapeHtml(profile.communication_style)}</span>
       </div>
     `;
@@ -143,7 +314,7 @@ function renderBehavioralProfile(contact) {
   if (profile.decision_pattern) {
     html += `
       <div class="behavioral-item">
-        <span class="behavioral-label">Decision Pattern:</span>
+        <span class="behavioral-label">Decision Pattern</span>
         <span class="behavioral-val">${escapeHtml(profile.decision_pattern)}</span>
       </div>
     `;
@@ -152,7 +323,7 @@ function renderBehavioralProfile(contact) {
   if (profile.preferred_communication) {
     html += `
       <div class="behavioral-item">
-        <span class="behavioral-label">Preferred Channel:</span>
+        <span class="behavioral-label">Preferred Channel</span>
         <span class="behavioral-val">${escapeHtml(profile.preferred_communication)}</span>
       </div>
     `;
@@ -161,7 +332,7 @@ function renderBehavioralProfile(contact) {
   if (Array.isArray(profile.hot_button_topics) && profile.hot_button_topics.length > 0) {
     html += `
       <div class="behavioral-item">
-        <span class="behavioral-label">Key Topics/Concerns:</span>
+        <span class="behavioral-label">Key Topics / Concerns</span>
         <span class="behavioral-val">${profile.hot_button_topics.map(t => escapeHtml(t)).join(', ')}</span>
       </div>
     `;
@@ -171,15 +342,15 @@ function renderBehavioralProfile(contact) {
   container.innerHTML = html;
 }
 
+// Meeting History Renderer
 async function fetchMeetingHistory(contactId) {
-  const container = document.getElementById('meetingHistoryContainer');
-  const countBadge = document.getElementById('historyCountBadge');
+  const container = document.getElementById('meetingsListContainer');
+  const countBadge = document.getElementById('meetingsCountBadge');
 
   if (!container) return;
 
-  // Loading state
   container.innerHTML = `
-    <div class="empty-state">
+    <div class="empty-workspace-state">
       <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
       </svg>
@@ -200,28 +371,30 @@ async function fetchMeetingHistory(contactId) {
 
     if (!Array.isArray(meetings) || meetings.length === 0) {
       container.innerHTML = `
-        <div class="empty-state">
+        <div class="empty-workspace-state">
           <p>No previous meetings found.</p>
         </div>
       `;
+      if (countBadge) {
+        countBadge.textContent = '0 meetings';
+        countBadge.classList.remove('hidden');
+      }
       return;
     }
 
-    // Update count badge
     if (countBadge) {
       countBadge.textContent = `${meetings.length} meeting${meetings.length === 1 ? '' : 's'}`;
       countBadge.classList.remove('hidden');
     }
 
-    // Render timeline meeting list
     let listHtml = '<div class="history-card-list">';
 
     meetings.forEach(m => {
       const formattedDate = formatDate(m.date || m.created_at);
-      const toneBadge = m.tone_analysis 
-        ? `<span class="badge badge-subtle">Tone: ${escapeHtml(m.tone_analysis)}</span>` 
+      const toneBadge = m.tone_analysis
+        ? `<span class="badge badge-neutral">Tone: ${escapeHtml(m.tone_analysis)}</span>`
         : '';
-      
+
       const topicsHtml = (Array.isArray(m.key_topics) && m.key_topics.length > 0)
         ? `<div class="history-topics">${m.key_topics.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`
         : '';
@@ -252,7 +425,7 @@ async function fetchMeetingHistory(contactId) {
   } catch (error) {
     console.error('API Error when fetching meeting history:', error);
     container.innerHTML = `
-      <div class="empty-state">
+      <div class="empty-workspace-state">
         <p>Unable to load meeting history.</p>
       </div>
     `;
@@ -284,7 +457,6 @@ async function handleMeetingUpload() {
   const contactId = contactSelect ? contactSelect.value : '';
   const transcriptText = transcriptInput ? transcriptInput.value.trim() : '';
 
-  // 1. Frontend Validations
   if (!contactId) {
     showAlert(uploadStatus, 'Please select a contact before processing.', 'error');
     return;
@@ -295,7 +467,6 @@ async function handleMeetingUpload() {
     return;
   }
 
-  // 2. Loading state setup
   if (resultCard) resultCard.classList.add('hidden');
   processBtn.disabled = true;
   processBtn.textContent = 'Processing...';
@@ -320,8 +491,8 @@ async function handleMeetingUpload() {
       try {
         const errorData = await response.json();
         if (errorData && errorData.detail) {
-          errorMessage = typeof errorData.detail === 'string' 
-            ? errorData.detail 
+          errorMessage = typeof errorData.detail === 'string'
+            ? errorData.detail
             : JSON.stringify(errorData.detail);
         }
       } catch (e) {
@@ -341,11 +512,10 @@ async function handleMeetingUpload() {
 
     const meeting = await response.json();
 
-    // 3. Success state
     showAlert(uploadStatus, 'Meeting transcript processed and saved successfully!', 'success');
     renderMeetingResult(meeting);
 
-    // 4. Automatically refresh meeting history for selected contact
+    // Refresh history
     fetchMeetingHistory(contactId);
 
   } catch (error) {
@@ -364,13 +534,11 @@ async function handlePrepareBrief() {
 
   const contactId = contactSelect ? contactSelect.value : '';
 
-  // 1. Validation
   if (!contactId) {
     showAlert(prepStatus, 'Please select a contact before generating a brief.', 'error');
     return;
   }
 
-  // 2. Loading State
   prepareBtn.disabled = true;
   prepareBtn.textContent = 'Preparing your meeting...';
   showAlert(prepStatus, 'Synthesizing intelligence brief using Hindsight memory & Groq...', 'info');
@@ -394,8 +562,8 @@ async function handlePrepareBrief() {
       try {
         const errorData = await response.json();
         if (errorData && errorData.detail) {
-          errorMessage = typeof errorData.detail === 'string' 
-            ? errorData.detail 
+          errorMessage = typeof errorData.detail === 'string'
+            ? errorData.detail
             : JSON.stringify(errorData.detail);
         }
       } catch (e) {
@@ -415,7 +583,6 @@ async function handlePrepareBrief() {
 
     const data = await response.json();
 
-    // 3. Render Real Response
     if (data && data.content) {
       handlePrepareBriefSuccess(data.content);
       showAlert(prepStatus, 'Personalized meeting brief generated successfully!', 'success');
@@ -433,6 +600,10 @@ async function handlePrepareBrief() {
 }
 
 function handlePrepareBriefSuccess(content) {
+  if (currentContactId && content) {
+    sessionPrepResults[currentContactId] = content;
+  }
+
   const emptyState = document.getElementById('aiPrepEmptyState');
   const resultContainer = document.getElementById('aiPrepResult');
   const briefContent = document.getElementById('prepBriefContent');
@@ -440,7 +611,6 @@ function handlePrepareBriefSuccess(content) {
 
   if (emptyState) emptyState.classList.add('hidden');
 
-  // 1. Top Summary "Quick Brief" Area
   const quickItems = extractQuickBriefItems(content);
   if (quickItems && Object.keys(quickItems).length > 0 && quickBriefArea) {
     quickBriefArea.innerHTML = '';
@@ -458,7 +628,6 @@ function handlePrepareBriefSuccess(content) {
     quickBriefArea.classList.add('hidden');
   }
 
-  // 2. Render Clean Full Markdown
   if (briefContent) {
     briefContent.innerHTML = parseMarkdown(content);
   }
@@ -470,10 +639,10 @@ function extractQuickBriefItems(markdown) {
   if (!markdown) return null;
   const items = {};
   const lines = markdown.split('\n');
-  
+
   lines.forEach(line => {
     const clean = line.replace(/^[\-\*#\d\.]+\s*/, '').trim();
-    
+
     if (/^(objective|goal|purpose):?\s*(.*)/i.test(clean)) {
       const match = clean.match(/^(objective|goal|purpose):?\s*(.*)/i);
       if (match && match[2] && match[2].length > 3 && !items['Objective']) items['Objective'] = match[2];
@@ -503,7 +672,6 @@ function escapeHtml(str) {
 function parseMarkdown(markdown) {
   if (!markdown) return '';
 
-  // 1. Process literal <br>, <br/>, <br /> tags into newlines before escaping
   let processed = markdown
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/&/g, '&amp;')
@@ -512,7 +680,7 @@ function parseMarkdown(markdown) {
 
   const lines = processed.split('\n');
   let html = '';
-  let inList = null; // 'ul' or 'ol'
+  let inList = null;
   let inTable = false;
   let tableHeaders = [];
   let tableRows = [];
@@ -561,14 +729,12 @@ function parseMarkdown(markdown) {
   for (let i = 0; i < lines.length; i++) {
     let line = lines[i].trim();
 
-    // Skip empty standalone pipes or line artifacts
     if (line === '|' || line === '') {
       closeList();
       closeTable();
       continue;
     }
 
-    // Horizontal rule (---, ***, ___ or |---|---|)
     if (/^[\-\*_]{3,}$/.test(line)) {
       closeList();
       closeTable();
@@ -576,7 +742,6 @@ function parseMarkdown(markdown) {
       continue;
     }
 
-    // Table detection: line contains '|' and has at least one internal pipe
     const pipeMatches = line.match(/\|/g);
     const isPipeLine = (line.includes('|') && (line.startsWith('|') || line.endsWith('|') || (pipeMatches && pipeMatches.length >= 2)));
 
@@ -588,7 +753,6 @@ function parseMarkdown(markdown) {
 
       const cells = rawCells.map(c => c.trim());
 
-      // Delimiter row (|---|---|)
       if (cells.every(c => /^[:\-\s]+$/.test(c))) {
         continue;
       }
@@ -604,7 +768,6 @@ function parseMarkdown(markdown) {
       closeTable();
     }
 
-    // Headings (# Heading)
     if (line.startsWith('#')) {
       closeList();
       const level = line.match(/^#+/)[0].length;
@@ -614,7 +777,6 @@ function parseMarkdown(markdown) {
       continue;
     }
 
-    // Unordered List (- item, * item, + item, • item)
     const ulMatch = line.match(/^[\-\*\+\u2022]\s+(.*)$/);
     if (ulMatch) {
       if (inList !== 'ul') {
@@ -626,7 +788,6 @@ function parseMarkdown(markdown) {
       continue;
     }
 
-    // Ordered List (1. item)
     const olMatch = line.match(/^\d+\.\s+(.*)$/);
     if (olMatch) {
       if (inList !== 'ol') {
@@ -638,7 +799,6 @@ function parseMarkdown(markdown) {
       continue;
     }
 
-    // Paragraph
     closeList();
     html += `<p>${formatInline(line)}</p>`;
   }
@@ -669,8 +829,8 @@ function renderMeetingResult(meeting) {
   if (resultMeetingId) resultMeetingId.textContent = meeting.id || 'N/A';
   if (resultTone) resultTone.textContent = meeting.tone_analysis || 'N/A';
   if (resultSentiment) {
-    resultSentiment.textContent = (meeting.sentiment_score !== null && meeting.sentiment_score !== undefined) 
-      ? meeting.sentiment_score 
+    resultSentiment.textContent = (meeting.sentiment_score !== null && meeting.sentiment_score !== undefined)
+      ? meeting.sentiment_score
       : 'N/A';
   }
   if (resultSummary) resultSummary.textContent = meeting.summary || 'No summary generated.';

@@ -3,241 +3,333 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meeting Prep Agent - AI-Powered Meeting Intelligence</title>
+  <title>Meeting Prep Agent - AI Workspace</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app-container">
-    <!-- Header -->
-    <header class="app-header">
-      <div class="header-brand">
+  <div class="app-layout">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
         <div class="brand-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
           </svg>
         </div>
-        <div class="brand-text">
-          <h1 class="product-name">Meeting Prep Agent</h1>
-          <span class="product-subtitle">AI-powered meeting intelligence</span>
+        <div class="brand-info">
+          <span class="brand-title">Meeting Prep Agent</span>
+          <span class="brand-badge">AI Workspace</span>
         </div>
       </div>
-      <div class="header-status">
-        <span class="status-badge active">
+
+      <div class="sidebar-action">
+        <button type="button" id="sidebarAddPersonBtn" class="btn btn-new-person">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>New Person</span>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-link active" data-view="home">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </a>
+        <a href="#" class="nav-link" data-view="meetings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Meetings</span>
+        </a>
+        <a href="#" class="nav-link" data-view="memory">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path d="M12 6v6l4 2"/></svg>
+          <span>Memory</span>
+        </a>
+        <a href="#" class="nav-link" data-view="settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="status-indicator">
           <span class="status-dot"></span>
           HINDSIGHT ACTIVE
         </span>
       </div>
-    </header>
+    </aside>
 
-    <!-- App Body (Sidebar + Main Content) -->
-    <div class="app-body">
-      <!-- Left Sidebar -->
-      <aside class="sidebar">
-        <nav class="sidebar-nav">
-          <a href="#" class="nav-item active" data-tab="dashboard">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="7" height="7" rx="1"/>
-              <rect x="14" y="3" width="7" height="7" rx="1"/>
-              <rect x="14" y="14" width="7" height="7" rx="1"/>
-              <rect x="3" y="14" width="7" height="7" rx="1"/>
-            </svg>
-            <span>Dashboard</span>
-          </a>
-          <a href="#" class="nav-item" data-tab="contacts">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 4-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-            <span>Contacts</span>
-          </a>
-          <a href="#" class="nav-item" data-tab="meetings">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            <span>Meetings</span>
-          </a>
-          <a href="#" class="nav-item" data-tab="memory">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
-              <path d="M12 6v6l4 2"/>
-            </svg>
-            <span>Memory</span>
-          </a>
-          <a href="#" class="nav-item" data-tab="settings">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-            </svg>
-            <span>Settings</span>
-          </a>
-        </nav>
-      </aside>
+    <!-- Main Content Area -->
+    <main class="main-container">
 
-      <!-- Main Content Area -->
-      <main class="main-content">
-        <!-- Error Banner (hidden by default) -->
-        <div id="errorBanner" class="error-banner hidden"></div>
+      <!-- Top Notification Banner -->
+      <div id="globalBanner" class="alert-banner hidden"></div>
 
-        <div class="dashboard-grid">
-          
-          <!-- Column 1: Input & AI Prep Section -->
-          <div class="dashboard-column primary-column">
-            
-            <!-- Contact Selector Section -->
-            <section class="card contact-section">
-              <h2 class="section-title">Prepare for a meeting</h2>
-              <div class="form-group">
-                <label for="contactSelect" class="form-label">Select Contact</label>
-                <select id="contactSelect" class="form-select">
-                  <option value="" selected disabled>Loading contacts...</option>
-                </select>
-              </div>
-            </section>
-
-            <!-- Meeting Transcript Section -->
-            <section class="card transcript-section">
-              <h3 class="card-title">Meeting Transcript</h3>
-              
-              <!-- Upload Status Alert -->
-              <div id="uploadStatus" class="alert-message hidden"></div>
-
-              <div class="form-group">
-                <textarea 
-                  id="transcriptInput" 
-                  class="form-textarea" 
-                  rows="8" 
-                  placeholder="Paste the meeting transcript here..."
-                ></textarea>
-              </div>
-              <div class="form-actions">
-                <button type="button" id="processBtn" class="btn btn-primary">
-                  Process Meeting
-                </button>
-              </div>
-            </section>
-
-            <!-- Processed Meeting Result Card -->
-            <section id="processedMeetingCard" class="card result-card hidden">
-              <div class="card-header-flex">
-                <h3 class="card-title">Processed Meeting Result</h3>
-                <span class="badge badge-success">Processed</span>
-              </div>
-              <div class="result-details">
-                <div class="result-item">
-                  <span class="result-label">Meeting ID:</span>
-                  <span id="resultMeetingId" class="result-value code-font"></span>
-                </div>
-                <div class="result-item">
-                  <span class="result-label">Tone:</span>
-                  <span id="resultTone" class="result-value"></span>
-                </div>
-                <div class="result-item">
-                  <span class="result-label">Sentiment Score:</span>
-                  <span id="resultSentiment" class="result-value"></span>
-                </div>
-                <div class="result-group">
-                  <span class="result-label">Summary:</span>
-                  <p id="resultSummary" class="result-text"></p>
-                </div>
-                <div class="result-group">
-                  <span class="result-label">Key Topics:</span>
-                  <div id="resultTopics" class="topics-tags"></div>
-                </div>
-              </div>
-            </section>
-
-            <!-- AI Preparation Section -->
-            <section class="card ai-prep-section">
-              <div class="card-header-flex">
-                <h3 class="card-title">AI Meeting Preparation</h3>
-                <button type="button" id="prepareBtn" class="btn btn-primary">
-                  Prepare Me
-                </button>
-              </div>
-
-              <!-- Prep Brief Alert Status -->
-              <div id="prepStatus" class="alert-message hidden"></div>
-
-              <!-- Initial Empty State -->
-              <div id="aiPrepEmptyState" class="empty-state">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                </svg>
-                <p>Your personalized preparation brief will appear here.</p>
-              </div>
-
-              <!-- AI Preparation Result Card -->
-              <div id="aiPrepResult" class="prep-result hidden">
-                <div class="memory-badge-bar">
-                  <span class="status-badge active memory-indicator">
-                    <span class="status-dot"></span>
-                    Hindsight Memory Used
-                  </span>
-                  <span class="indicator-subtitle">Personalized using stored meeting context</span>
-                </div>
-
-                <!-- Top Summary "Quick Brief" Area -->
-                <div id="quickBriefArea" class="quick-brief-grid hidden"></div>
-                
-                <div id="prepBriefContent" class="markdown-body"></div>
-              </div>
-            </section>
-
+      <!-- VIEW 1: HOME WORKSPACE -->
+      <div id="viewHome" class="workspace-view">
+        <header class="view-header">
+          <div>
+            <h1 class="view-title">Prepare for a meeting</h1>
+            <p class="view-subtitle">Turn previous conversations and long-term context into a focused meeting brief.</p>
           </div>
+          <div class="contact-selector-toolbar">
+            <select id="contactSelect" class="form-select contact-select-lg">
+              <option value="" disabled selected>Loading contacts...</option>
+            </select>
+            <button type="button" id="addPersonBtn" class="btn btn-secondary">
+              + Add Person
+            </button>
+          </div>
+        </header>
 
-          <!-- Column 2: Memory & History Section -->
-          <div class="dashboard-column secondary-column">
+        <div class="workspace-content">
+          <!-- Meeting Transcript Section -->
+          <section class="section-block">
+            <h2 class="block-title">Meeting Transcript</h2>
+            <div id="uploadStatus" class="alert-message hidden"></div>
 
-            <!-- Hindsight Memory Section -->
-            <section class="card memory-section">
-              <div class="card-header-flex">
-                <h3 class="card-title">Hindsight Memory</h3>
-                <span class="badge badge-subtle">Persistent</span>
+            <div class="form-group">
+              <textarea
+                id="transcriptInput"
+                class="form-textarea"
+                rows="6"
+                placeholder="Paste the meeting transcript here..."
+              ></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" id="processBtn" class="btn btn-primary">
+                Process Meeting
+              </button>
+            </div>
+          </section>
+
+          <!-- Processed Meeting Result Card -->
+          <section id="processedMeetingCard" class="section-block result-card hidden">
+            <div class="card-header-flex">
+              <h3 class="block-title">Processed Meeting Result</h3>
+              <span class="badge badge-success">Processed</span>
+            </div>
+            <div class="result-details">
+              <div class="result-item">
+                <span class="result-label">Meeting ID:</span>
+                <span id="resultMeetingId" class="result-value code-font"></span>
               </div>
-              
-              <p class="memory-explanation">
-                Long-term context is used by the backend to personalize meeting preparation.
-              </p>
-
-              <div class="memory-placeholders">
-                <!-- Behavioral Insights -->
-                <div class="placeholder-group">
-                  <h4 class="placeholder-heading">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                    Behavioral Profile
-                  </h4>
-                  <div id="behavioralProfileContainer" class="placeholder-box">
-                    <span class="placeholder-text">Select a contact to view behavioral profile.</span>
-                  </div>
-                </div>
+              <div class="result-item">
+                <span class="result-label">Tone:</span>
+                <span id="resultTone" class="result-value"></span>
               </div>
-            </section>
+              <div class="result-item">
+                <span class="result-label">Sentiment Score:</span>
+                <span id="resultSentiment" class="result-value"></span>
+              </div>
+              <div class="result-group">
+                <span class="result-label">Summary:</span>
+                <p id="resultSummary" class="result-text"></p>
+              </div>
+              <div class="result-group">
+                <span class="result-label">Key Topics:</span>
+                <div id="resultTopics" class="topics-tags"></div>
+              </div>
+            </div>
+          </section>
 
-            <!-- Meeting History Section -->
-            <section class="card history-section">
-              <div class="card-header-flex">
-                <h3 class="card-title">Meeting History</h3>
-                <span id="historyCountBadge" class="badge badge-subtle hidden">0 meetings</span>
+          <!-- AI Meeting Preparation Workspace -->
+          <section class="section-block ai-prep-workspace">
+            <div class="workspace-section-header">
+              <div>
+                <h2 class="block-title">AI Meeting Preparation</h2>
+                <p class="block-subtitle">Personalized using previous meetings, behavioral context, and Hindsight memory.</p>
+              </div>
+              <button type="button" id="prepareBtn" class="btn btn-primary btn-lg">
+                Prepare Me
+              </button>
+            </div>
+
+            <div id="prepStatus" class="alert-message hidden"></div>
+
+            <!-- Initial Empty Reading State -->
+            <div id="aiPrepEmptyState" class="empty-workspace-state">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+              </svg>
+              <p>Your personalized preparation brief will appear here.</p>
+            </div>
+
+            <!-- Document-like Reading Area -->
+            <div id="aiPrepResult" class="document-reading-area hidden">
+              <div class="memory-badge-bar">
+                <span class="badge badge-hindsight">
+                  <span class="status-dot"></span>
+                  Hindsight Memory Used
+                </span>
+                <span class="indicator-subtitle">Personalized using stored meeting context</span>
               </div>
 
-              <div id="meetingHistoryContainer">
-                <div class="empty-state">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                  </svg>
-                  <p>Select a contact to load meeting history.</p>
-                </div>
-              </div>
-            </section>
+              <!-- Top Summary Quick Brief -->
+              <div id="quickBriefArea" class="quick-brief-grid hidden"></div>
 
+              <!-- Clean Document Content -->
+              <div id="prepBriefContent" class="document-body"></div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- VIEW 2: MEETINGS VIEW -->
+      <div id="viewMeetings" class="workspace-view hidden">
+        <header class="view-header">
+          <div>
+            <h1 class="view-title">Meetings</h1>
+            <p class="view-subtitle">Chronological history of meeting transcripts and AI extractions.</p>
+          </div>
+          <div class="contact-selector-toolbar">
+            <select id="meetingsContactSelect" class="form-select contact-select-lg">
+              <option value="" disabled selected>Loading contacts...</option>
+            </select>
+            <span id="meetingsCountBadge" class="badge badge-neutral">0 meetings</span>
+          </div>
+        </header>
+
+        <div class="workspace-content">
+          <div id="meetingsListContainer">
+            <div class="empty-workspace-state">
+              <p>Select a contact to view meeting history.</p>
+            </div>
           </div>
         </div>
-      </main>
+      </div>
+
+      <!-- VIEW 3: MEMORY VIEW -->
+      <div id="viewMemory" class="workspace-view hidden">
+        <header class="view-header">
+          <div>
+            <h1 class="view-title">Hindsight Memory</h1>
+            <p class="view-subtitle">Long-term context is used by the backend to personalize meeting preparation.</p>
+          </div>
+          <div class="status-badge-inline">
+            <span class="status-dot"></span>
+            Hindsight Memory Active
+          </div>
+        </header>
+
+        <div class="workspace-content">
+          <section class="section-block">
+            <h2 class="block-title">Behavioral Profile</h2>
+            <div id="memoryBehavioralContainer" class="profile-card-container">
+              <span class="muted-text">Select a contact to view their behavioral profile.</span>
+            </div>
+          </section>
+
+          <section class="section-block memory-flow-section">
+            <h2 class="block-title">How memory is used</h2>
+            <p class="memory-flow-description">
+              Previous meeting context and long-term behavioral context are retrieved by the backend and used to personalize the AI meeting preparation.
+            </p>
+
+            <div class="memory-flow-diagram">
+              <div class="flow-step">
+                <span class="flow-step-icon">💬</span>
+                <span class="flow-step-title">Previous interactions</span>
+              </div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-step flow-step-highlight">
+                <span class="flow-step-icon">🧠</span>
+                <span class="flow-step-title">Hindsight long-term memory</span>
+              </div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-step">
+                <span class="flow-step-icon">⚡</span>
+                <span class="flow-step-title">AI preparation</span>
+              </div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-step flow-step-success">
+                <span class="flow-step-icon">📄</span>
+                <span class="flow-step-title">Personalized meeting brief</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- VIEW 4: SETTINGS VIEW -->
+      <div id="viewSettings" class="workspace-view hidden">
+        <header class="view-header">
+          <div>
+            <h1 class="view-title">Settings</h1>
+            <p class="view-subtitle">System status & workspace connectivity overview.</p>
+          </div>
+        </header>
+
+        <div class="workspace-content">
+          <section class="section-block">
+            <h2 class="block-title">System Status</h2>
+            <div class="settings-list">
+              <div class="settings-row">
+                <span class="settings-label">FastAPI Backend API</span>
+                <span class="badge badge-success">Connected</span>
+              </div>
+              <div class="settings-row">
+                <span class="settings-label">Hindsight Memory Engine</span>
+                <span class="badge badge-success">Active</span>
+              </div>
+              <div class="settings-row">
+                <span class="settings-label">Groq Intelligence Engine</span>
+                <span class="badge badge-success">Active</span>
+              </div>
+              <div class="settings-row">
+                <span class="settings-label">Database Storage</span>
+                <span class="badge badge-success">PostgreSQL / SQLite</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ADD PERSON MODAL -->
+  <div id="addPersonModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Add New Person</h3>
+        <button type="button" id="modalCloseBtn" class="modal-close">&times;</button>
+      </div>
+
+      <form id="addPersonForm" class="modal-form">
+        <div id="modalError" class="alert-message alert-error hidden"></div>
+
+        <div class="form-group">
+          <label for="modalName" class="form-label">Full Name *</label>
+          <input type="text" id="modalName" class="form-input" placeholder="e.g. Rahul Sharma" required />
+        </div>
+
+        <div class="form-group">
+          <label for="modalTitle" class="form-label">Job Title</label>
+          <input type="text" id="modalTitle" class="form-input" placeholder="e.g. Senior Product Manager" />
+        </div>
+
+        <div class="form-group">
+          <label for="modalCompany" class="form-label">Company</label>
+          <input type="text" id="modalCompany" class="form-input" placeholder="e.g. Acme Tech" />
+        </div>
+
+        <div class="form-group">
+          <label for="modalEmail" class="form-label">Email Address</label>
+          <input type="email" id="modalEmail" class="form-input" placeholder="e.g. rahul@acme.com" />
+        </div>
+
+        <div class="form-group">
+          <label for="modalPhone" class="form-label">Phone Number</label>
+          <input type="text" id="modalPhone" class="form-input" placeholder="e.g. +1 (555) 019-2834" />
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="modalCancelBtn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" id="modalSubmitBtn" class="btn btn-primary">Add Person</button>
+        </div>
+      </form>
     </div>
   </div>
 
